@@ -9,8 +9,8 @@ class PersonDetails {
   String locationUrl;
   String status;
   String created;
-  String type;
   String gender;
+  String species;
 
   String originName;
   String originUrl;
@@ -18,8 +18,8 @@ class PersonDetails {
 }
 
 Future<PersonDetails> loadPerson(int id) async {
-  var response =
-  await http.get(Uri.parse("https://rickandmortyapi.com/api/character/$id"));
+  var response = await http
+      .get(Uri.parse("https://rickandmortyapi.com/api/character/$id"));
   PersonDetails person;
   if (response.statusCode == 200) {
     var item = convert.jsonDecode(response.body);
@@ -31,11 +31,12 @@ Future<PersonDetails> loadPerson(int id) async {
     person.locationUrl = item["location"]["url"];
     person.status = item["status"];
     person.created = item["created"];
+
     person.gender = item["gender"];
-    person.type = item["type"];
     person.originName = item["origin"]["name"];
     person.originUrl = item["origin"]["url"];
-  //  person.episodes = item["episode"];
+    person.species = item["species"];
+    //  person.episodes = item["episode"];
   }
   return person;
 }
