@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skillboxdemoapp/locationdetails.dart';
-import 'package:skillboxdemoapp/Persondetails/loader.dart';
+import 'package:skillboxdemoapp/LocationDetails/widget.dart';
+import 'package:skillboxdemoapp/PersonList/widget.dart';
+import 'package:skillboxdemoapp/PersonDetails/loader.dart';
 
 class PersonDetailsPage extends StatefulWidget {
   PersonDetailsPage({Key key, this.id}) : super(key: key);
@@ -30,9 +31,17 @@ class _State extends State<PersonDetailsPage> {
     });
   }
 
+  void navigateToDetails(String url) {
+    Navigator.push(context, FadeRoute(page: LocationDetailsPage(url: url)));
+  }
+
+  void navigateToHome() {
+    Navigator.of(context).pushReplacement(
+        new MaterialPageRoute(builder: (BuildContext context) => MyHomePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
-    var widget;
     if (person == null)
       return Scaffold(
         backgroundColor: Colors.white,
@@ -47,25 +56,6 @@ class _State extends State<PersonDetailsPage> {
           )),
         ),
       );
-    // else
-    //   widget = SafeArea(
-    //     child: Column(
-    //       children: [
-    //         GestureDetector(
-    //           child: Image.network(
-    //             person.avatar,
-    //             width: double.infinity,
-    //           ),
-    //           onTap: () => showLocationDetails(
-    //             context,
-    //             person.locationName,
-    //             person.locationUrl,
-    //           ),
-    //         ),
-    //         Text(person.name),
-    //       ],
-    //     ),
-    //   );
     else {
       return Scaffold(
         backgroundColor: Colors.white,
@@ -77,6 +67,12 @@ class _State extends State<PersonDetailsPage> {
           elevation: 0,
           backgroundColor: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () => navigateToHome(),
+            ),
+          ],
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -113,7 +109,7 @@ class _State extends State<PersonDetailsPage> {
                   margin: EdgeInsets.all(5),
                   padding: EdgeInsets.all(8),
                   width: double.infinity,
-                  height: 64,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: Color(0xFFfafafa),
                     borderRadius: BorderRadius.circular(5),
@@ -130,9 +126,14 @@ class _State extends State<PersonDetailsPage> {
                     children: [
                       Text("Origin:",
                           style: TextStyle(fontWeight: FontWeight.w500)),
-                      Text(person.originName),
-                      Text(person.originUrl,
-                          style: TextStyle(fontStyle: FontStyle.italic)),
+                      if (person.originName != "unknown")
+                        ElevatedButton(
+                          onPressed: () => navigateToDetails(person.originUrl),
+                          child: Text(person.originName),
+                          style: ButtonStyle(),
+                        ),
+                      if (person.originName == "unknown")
+                        Text(person.originName)
                     ],
                   ),
                 ),
@@ -141,7 +142,7 @@ class _State extends State<PersonDetailsPage> {
                   margin: EdgeInsets.all(5),
                   padding: EdgeInsets.all(8),
                   width: double.infinity,
-                  height: 64,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: Color(0xFFfafafa),
                     borderRadius: BorderRadius.circular(5),
@@ -160,9 +161,15 @@ class _State extends State<PersonDetailsPage> {
                         "Location:",
                         style: TextStyle(fontWeight: FontWeight.w500),
                       ),
-                      Text(person.locationName),
-                      Text(person.locationUrl,
-                          style: TextStyle(fontStyle: FontStyle.italic)),
+                      if (person.locationName != "unknown")
+                        ElevatedButton(
+                          onPressed: () =>
+                              navigateToDetails(person.locationUrl),
+                          child: Text(person.locationName),
+                          style: ButtonStyle(),
+                        ),
+                      if (person.locationName == "unknown")
+                        Text(person.originName)
                     ],
                   ),
                 ),

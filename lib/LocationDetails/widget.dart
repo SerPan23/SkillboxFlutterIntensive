@@ -1,39 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:skillboxdemoapp/LocationDetails/loader.dart';
 import 'package:skillboxdemoapp/PersonDetails/widget.dart';
-import 'package:skillboxdemoapp/PersonList/loader.dart';
+import 'package:skillboxdemoapp/PersonList/widget.dart';
 
-class FadeRoute extends PageRouteBuilder {
-  final Widget page;
-  FadeRoute({this.page})
-      : super(
-          pageBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) =>
-              page,
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) =>
-              FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
-        );
-}
+class LocationDetailsPage extends StatefulWidget {
+  LocationDetailsPage({Key key, this.url}) : super(key: key);
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  final String url;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _State createState() => _State(url: url);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Person> persons = [];
+class _State extends State<LocationDetailsPage> {
+  _State({this.url}) : super();
+
+  String url;
+  LocationDetails location;
 
   @override
   void initState() {
@@ -42,9 +25,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void loadData() async {
-    var loadedPersons = await loadPersons();
+    var locationInfo = await loadLocation(url);
     setState(() {
-      this.persons = loadedPersons;
+      location = locationInfo;
     });
   }
 
@@ -52,9 +35,14 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(context, FadeRoute(page: PersonDetailsPage(id: personId)));
   }
 
+  void navigateToHome() {
+    Navigator.of(context).pushReplacement(
+        new MaterialPageRoute(builder: (BuildContext context) => MyHomePage()));
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (persons.length <= 0)
+    if (location == null)
       return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -68,14 +56,29 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
         ),
       );
-    else
+    else {
       return Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            location.name + " - " + location.type,
+            style: TextStyle(color: Colors.black, fontSize: 16),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () => navigateToHome(),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: ListView.builder(
-            itemCount: persons.length,
+            itemCount: location.persons.length,
             itemBuilder: (context, index) => GestureDetector(
-              onTap: () => navigateToDetails(persons[index].id),
+              onTap: () => navigateToDetails(location.persons[index].id),
               child: Container(
                 width: double.infinity,
                 height: 70,
@@ -99,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: Image.network(
-                          persons[index].avatar,
+                          location.persons[index].avatar,
                           width: double.infinity,
                         ),
                       ),
@@ -110,14 +113,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            persons[index].name,
+                            location.persons[index].name,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
-                            persons[index].status,
+                            location.persons[index].status,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w300,
@@ -131,28 +134,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          // child: ListView.builder(
-          //   itemCount: persons.length,
-          //   itemBuilder: (context, index) => Row(
-          //     children: [
-          //       Text(persons[index].id.toString()),
-          //       IconButton(
-          //         icon: Icon(Icons.info),
-          //         onPressed: () => navigateToDetails(persons[index].id),
-          //       ),
-          //       Padding(
-          //         padding: EdgeInsets.all(8),
-          //         child: Text(
-          //           persons[index].name,
-          //           style: TextStyle(
-          //             fontSize: 25,
-          //           ),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ),
       );
+    }
   }
 }
